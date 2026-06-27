@@ -62,8 +62,8 @@ def _package_json(project_name: str, framework: str) -> str:
     }
 
     if framework == "vite":
-        pkg["devDependencies"]["@vitejs/plugin-react"] = "^4.3.0"
-        pkg["devDependencies"]["vite"] = "^5.3.0"
+        pkg["devDependencies"]["@vitejs/plugin-react"] = "^4.3.0"  # type: ignore[index]
+        pkg["devDependencies"]["vite"] = "^5.3.0"  # type: ignore[index]
 
     return json.dumps(pkg, indent=2)
 

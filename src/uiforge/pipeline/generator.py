@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import anthropic
+from anthropic.types import TextBlock
 
 from uiforge.models import DesignTokens, LayoutAnalysis, UIComponent
 
@@ -112,7 +113,7 @@ def generate_component(
         messages=[{"role": "user", "content": prompt}],
     )
 
-    code = response.content[0].text.strip()
+    code = next(b for b in response.content if isinstance(b, TextBlock)).text.strip()
     if code.startswith("```"):
         import re
         code = re.sub(r"^```(?:tsx?|typescript|jsx?)?\n?", "", code)
@@ -148,7 +149,7 @@ def generate_page(
         messages=[{"role": "user", "content": prompt}],
     )
 
-    code = response.content[0].text.strip()
+    code = next(b for b in response.content if isinstance(b, TextBlock)).text.strip()
     if code.startswith("```"):
         import re
         code = re.sub(r"^```(?:tsx?|typescript|jsx?)?\n?", "", code)

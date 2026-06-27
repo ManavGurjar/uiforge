@@ -6,8 +6,10 @@ import base64
 import json
 import re
 from pathlib import Path
+from typing import Any, cast
 
 import anthropic
+from anthropic.types import ImageBlockParam, TextBlock, TextBlockParam
 
 from uiforge.models import DesignTokens, LayoutAnalysis, UIComponent
 
@@ -62,7 +64,7 @@ Rules:
 - Use PascalCase for all component names"""
 
 
-def _parse_response(text: str) -> dict:
+def _parse_response(text: str) -> dict[str, Any]:
     text = text.strip()
     if text.startswith("```"):
         text = re.sub(r"^```(?:json)?\n?", "", text)
@@ -71,10 +73,10 @@ def _parse_response(text: str) -> dict:
     end = text.rfind("}") + 1
     if start != -1 and end > start:
         text = text[start:end]
-    return json.loads(text)
+    return json.loads(text)  # type: ignore[no-any-return]
 
 
-def _build_component(raw: dict) -> UIComponent:
+def _build_component(raw: dict[str, Any]) -> UIComponent:
     children = [_build_component(c) for c in raw.get("children", [])]
     props = raw.get("props", {})
     if not isinstance(props, dict):
@@ -91,7 +93,7 @@ def _build_component(raw: dict) -> UIComponent:
     )
 
 
-def _build_tokens(raw: dict) -> DesignTokens:
+def _build_tokens(raw: dict[str, Any]) -> DesignTokens:
     dt = raw.get("design_tokens", {})
     return DesignTokens(
         primary_color=dt.get("primary_color", "#3B82F6"),
@@ -132,28 +134,20 @@ def analyze_image(
     if extra_context:
         prompt += f"\n\nAdditional context from user: {extra_context}"
 
+    image_block = cast(ImageBlockParam, {
+        "type": "image",
+        "source": {"type": "base64", "media_type": media_type, "data": image_data},
+    })
+    text_param = cast(TextBlockParam, {"type": "text", "text": prompt})
+
     response = client.messages.create(
         model=model,
         max_tokens=4096,
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "image",
-                        "source": {
-                            "type": "base64",
-                            "media_type": media_type,
-                            "data": image_data,
-                        },
-                    },
-                    {"type": "text", "text": prompt},
-                ],
-            }
-        ],
+        messages=[{"role": "user", "content": [image_block, text_param]}],
     )
 
-    raw_text = response.content[0].text
+    text_block = next(b for b in response.content if isinstance(b, TextBlock))
+    raw_text = text_block.text
     raw = _parse_response(raw_text)
 
     components = [_build_component(c) for c in raw.get("components", [])]
