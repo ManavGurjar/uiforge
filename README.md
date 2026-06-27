@@ -1,186 +1,181 @@
+<div align="center">
+
 # UIForge
 
-> **Convert any UI screenshot into production-ready React components.**
+**Convert any UI screenshot into production-ready React components.**
 
-[![PyPI version](https://img.shields.io/pypi/v/uiforge.svg?color=violet)](https://pypi.org/project/uiforge/)
+[![PyPI version](https://img.shields.io/pypi/v/uiforge.svg?color=7c3aed)](https://pypi.org/project/uiforge/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://python.org)
 [![CI](https://github.com/ManavGurjar/uiforge/actions/workflows/ci.yml/badge.svg)](https://github.com/ManavGurjar/uiforge/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+</div>
+
+---
+
+Take a screenshot of any UI. Get a complete, runnable React project in seconds.
 
 ```bash
 uiforge dashboard.png
 ```
 
-**Output:**
+**Not this:**
+```tsx
+<div style="position:absolute;left:143px;top:492px;width:241px">
+  <div>
+    <div>
+```
 
+**This:**
 ```tsx
 <DashboardLayout>
   <Sidebar />
   <Topbar />
   <StatsGrid>
-    <RevenueCard />
-    <OrdersCard />
-    <VisitorsCard />
+    <RevenueCard title="Total Revenue" value="$48,295" trend="+12%" />
+    <OrdersCard title="Orders" value="1,429" trend="+8%" />
+    <VisitorsCard title="Visitors" value="24.5k" trend="+3%" />
   </StatsGrid>
   <SalesChart />
   <RecentOrders />
 </DashboardLayout>
 ```
 
-Not `<div><div><div>`. Semantic, named, composable components — ready to `npm run dev`.
+Semantic, named, composable — ready to `npm run dev`.
 
 ---
-
-## Why UIForge?
-
-There are dozens of "screenshot to HTML" tools. UIForge is different:
-
-| Feature | Others | UIForge |
-|---|---|---|
-| Output | `<div style="position:absolute;left:143px">` | Clean Tailwind + Shadcn/UI |
-| Structure | One 1500-line component | Separate `Sidebar.tsx`, `StatsCard.tsx`, etc. |
-| Stack | Raw HTML | React + TypeScript + Vite + Tailwind |
-| Interactivity | Static HTML | Working dropdowns, modals, tabs |
-| Run immediately | No | `npm install && npm run dev` |
 
 ## Install
 
 ```bash
 pip install uiforge
+```
 
-# or with uv (recommended — no install needed)
+Or try without installing:
+```bash
 uvx uiforge dashboard.png
 ```
 
-## Setup
-
-UIForge uses Claude's vision capabilities. Get a free API key at [console.anthropic.com](https://console.anthropic.com).
-
+UIForge uses Claude's vision API. Set your key:
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
 ```
 
+> Get a free key at [console.anthropic.com](https://console.anthropic.com)
+
+---
+
 ## Usage
 
 ```bash
-# Basic — generates a React + Vite + Tailwind project
-uiforge dashboard.png
-
-# Choose output directory
-uiforge dashboard.png --output ./my-app
-
-# Next.js instead of Vite
-uiforge dashboard.png --framework next
-
-# Add context to improve detection
-uiforge dashboard.png --context "dark SaaS admin dashboard with sidebar"
-
-# Analyze only (no code generation)
-uiforge dashboard.png --dry-run
-
-# Open VS Code when done
-uiforge dashboard.png --open
+uiforge dashboard.png                          # React + Vite (default)
+uiforge dashboard.png --framework next         # Next.js
+uiforge dashboard.png --output ./my-app        # custom output dir
+uiforge dashboard.png --context "dark SaaS"   # hint for better results
+uiforge dashboard.png --dry-run                # analyze only, no codegen
 ```
 
-## What gets generated
+---
+
+## What you get
 
 ```
 my-app/
 ├── src/
-│   ├── Dashboard.tsx          ← main page composing all components
+│   ├── Dashboard.tsx          ← main page, composes everything
 │   ├── components/
-│   │   ├── Sidebar.tsx
+│   │   ├── Sidebar.tsx        ← each component is its own file
 │   │   ├── Topbar.tsx
 │   │   ├── StatsGrid.tsx
 │   │   ├── RevenueCard.tsx
-│   │   ├── SalesChart.tsx
-│   │   └── RecentOrders.tsx
-│   ├── lib/
-│   │   └── utils.ts
-│   └── globals.css
-├── package.json               ← React 18 + Tailwind + Shadcn + Framer Motion
-├── tailwind.config.js         ← colors extracted from your screenshot
-├── tsconfig.json
-└── README.md
+│   │   ├── SalesChart.tsx     ← recharts, wired up
+│   │   └── RecentOrders.tsx   ← real table with mock data
+│   ├── lib/utils.ts           ← cn() helper
+│   └── globals.css            ← colors extracted from your screenshot
+├── package.json
+├── tailwind.config.js         ← exact colors from the image
+└── tsconfig.json
 ```
 
-## The pipeline
-
-UIForge runs a 3-step pipeline:
-
-```
-Screenshot
-    │
-    ▼
-┌─────────────────────────────────────────────────────────┐
-│  Step 1 — Vision Analysis (Claude)                      │
-│  • Identifies layout: sidebar-main, grid, centered...   │
-│  • Names components: Sidebar, StatsCard, TopNav...      │
-│  • Extracts design tokens: colors, border radius, fonts │
-│  • Detects Shadcn/UI equivalents: Card, Badge, Table... │
-└─────────────────────────────────────────────────────────┘
-    │
-    ▼
-┌─────────────────────────────────────────────────────────┐
-│  Step 2 — Code Generation (Claude)                      │
-│  • Generates each component independently               │
-│  • Uses Tailwind CSS (never inline styles)              │
-│  • Wires Shadcn/UI components where detected            │
-│  • Adds Framer Motion hover animations                  │
-│  • Adds Lucide icons matching the original              │
-│  • Generates realistic placeholder data                 │
-└─────────────────────────────────────────────────────────┘
-    │
-    ▼
-┌─────────────────────────────────────────────────────────┐
-│  Step 3 — Project Scaffold                              │
-│  • Writes all .tsx files                                │
-│  • Generates package.json, tailwind.config.js           │
-│  • Creates globals.css with extracted CSS variables     │
-│  • Ready: npm install && npm run dev                    │
-└─────────────────────────────────────────────────────────┘
+```bash
+cd my-app && npm install && npm run dev
 ```
 
-## Generated stack
-
-- **React 18** + TypeScript
-- **Tailwind CSS** (colors extracted from your screenshot)
-- **Shadcn/UI** components (Card, Table, Badge, Button, etc.)
-- **Lucide React** icons
-- **Framer Motion** animations
-- **Recharts** for data visualization
-- **Vite** or **Next.js**
-
-## Roadmap
-
-- [ ] `--dark` — automatically generate dark mode variants
-- [ ] `--responsive` — desktop screenshot → mobile + tablet layouts
-- [ ] `--vue` / `--svelte` / `--flutter` framework targets
-- [ ] `--figma` — export Figma-compatible tokens
-- [ ] URL support: `uiforge https://dribbble.com/shots/...`
-- [ ] Video support: `uiforge recording.mp4` (extract frames)
-- [ ] Validation loop — render generated UI, compare to original, auto-fix
-- [ ] Storybook stories generation
-- [ ] i18n scaffolding
-
-## Contributing
-
-UIForge is looking for contributors! Great first issues:
-
-- Add support for Vue 3 + Composition API output
-- Improve chart detection (pie, bar, line, area)
-- Add `--responsive` flag for mobile layouts
-- Implement the render-validation loop
-- Add test fixtures (UI screenshots + expected component trees)
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions.
-
-## License
-
-MIT — see [LICENSE](LICENSE).
+It runs.
 
 ---
 
-<p align="center">
-  Made with ♥ · <a href="https://github.com/ManavGurjar/uiforge/issues">Report a bug</a> · <a href="https://github.com/ManavGurjar/uiforge/discussions">Discussions</a>
-</p>
+## How it works
+
+UIForge runs a 3-step pipeline:
+
+**1 — Analyze**
+
+Claude Vision reads the screenshot and returns a structured component tree: names, types, hierarchy, Shadcn/UI matches, Lucide icon suggestions, and exact hex colors from the image.
+
+**2 — Generate**
+
+Each component is generated independently. UIForge instructs the model to use Tailwind classes only (no `position: absolute`), wire in Shadcn/UI primitives where detected, add Framer Motion hover animations, and include realistic placeholder data.
+
+**3 — Scaffold**
+
+A complete project is written to disk — `package.json`, `tailwind.config.js` with the extracted color palette, `tsconfig.json`, `globals.css`, and all component files.
+
+---
+
+## Generated stack
+
+| | |
+|---|---|
+| Framework | React 18 + TypeScript |
+| Styling | Tailwind CSS (colors from your screenshot) |
+| Components | Shadcn/UI |
+| Icons | Lucide React |
+| Animation | Framer Motion |
+| Charts | Recharts |
+| Build | Vite or Next.js |
+
+---
+
+## Why not the other tools?
+
+| | Most tools | UIForge |
+|---|---|---|
+| Output | `<div style="left:143px">` | Tailwind classes |
+| Structure | One 1500-line file | One file per component |
+| Runs immediately | No | `npm install && npm run dev` |
+| Component names | `Component1`, `Box3` | `Sidebar`, `StatsCard` |
+| Design tokens | Ignored | Colors wired into `tailwind.config.js` |
+| Charts | Static image | Working Recharts component |
+| Shadcn/UI | Never | Auto-detected and used |
+
+---
+
+## Roadmap
+
+- [ ] `--dark` — generate light + dark theme variants
+- [ ] `--responsive` — one screenshot → desktop + tablet + mobile
+- [ ] `--vue` / `--svelte` / `--flutter` output targets
+- [ ] URL input: `uiforge https://dribbble.com/shots/...`
+- [ ] Render validation — screenshot the output, compare to original, auto-fix
+- [ ] Storybook story generation
+- [ ] Figma token export
+
+---
+
+## Contributing
+
+Good first issues:
+- Vue 3 + Composition API output target
+- Better chart detection (pie, area, scatter)
+- `--responsive` flag implementation
+- Render validation loop
+- Test fixtures (screenshots + expected component trees)
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup.
+
+---
+
+## License
+
+MIT
