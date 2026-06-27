@@ -4,7 +4,7 @@
 
 **Convert any UI screenshot into production-ready React components.**
 
-[![PyPI version](https://img.shields.io/pypi/v/uiforge.svg?color=7c3aed)](https://pypi.org/project/uiforge/)
+[![PyPI version](https://img.shields.io/pypi/v/uiforge-cli.svg?color=7c3aed)](https://pypi.org/project/uiforge-cli/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://python.org)
 [![CI](https://github.com/ManavGurjar/uiforge/actions/workflows/ci.yml/badge.svg)](https://github.com/ManavGurjar/uiforge/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -48,12 +48,12 @@ Semantic, named, composable — ready to `npm run dev`.
 ## Install
 
 ```bash
-pip install uiforge
+pip install uiforge-cli
 ```
 
 Or try without installing:
 ```bash
-uvx uiforge dashboard.png
+uvx uiforge-cli dashboard.png
 ```
 
 UIForge uses Claude's vision API. Set your key:

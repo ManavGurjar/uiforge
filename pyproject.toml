@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "uiforge"
+name = "uiforge-cli"
 version = "0.1.0"
 description = "Convert any UI screenshot into production-ready React components"
 readme = "README.md"
