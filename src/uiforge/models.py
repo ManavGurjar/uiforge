@@ -1,6 +1,7 @@
 """Data models for UIForge pipeline."""
 
 from __future__ import annotations
+
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -38,7 +39,7 @@ class UIComponent:
     name: str
     type: str
     description: str = ""
-    children: list["UIComponent"] = field(default_factory=list)
+    children: list[UIComponent] = field(default_factory=list)
     props: dict[str, Any] = field(default_factory=dict)
     shadcn_component: str | None = None
     is_repeating: bool = False

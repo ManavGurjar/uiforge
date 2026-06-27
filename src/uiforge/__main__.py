@@ -11,7 +11,6 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 from rich.table import Table
-from rich import print as rprint
 
 console = Console()
 
@@ -87,7 +86,7 @@ def _run(
     dry_run: bool,
 ) -> None:
     from uiforge.pipeline.analyzer import analyze_image
-    from uiforge.pipeline.generator import generate_all, _flatten_components
+    from uiforge.pipeline.generator import _flatten_components, generate_all
     from uiforge.pipeline.scaffolder import scaffold_project
 
     _print_banner()
